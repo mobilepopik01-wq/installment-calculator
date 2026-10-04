@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>محاسبه‌گر اقساط با درصد پیش‌پرداخت آزاد</title>
+<meta name="theme-color" content="#0E1512">
+<meta name="description" content="محاسبه‌گر قیمت‌گذاری فروش اقساطی با درصد پیش‌پرداخت، سود نقدی و سود ساده ماهانه">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0E1512;
+    --surface: #16211C;
+    --surface-2: #1D2A24;
+    --line: #2A3830;
+    --accent: #C6A15B;
+    --accent-soft: #E4C989;
+    --text: #F2EFE6;
+    --text-secondary: #93A39A;
+    --danger: #E2735A;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --bg: #F3F1EA; --surface: #FFFFFF; --surface-2: #FBF9F3;
+      --line: #E3DFD3; --accent: #A9793B; --accent-soft: #7E5A2A;
+      --text: #201C13; --text-secondary: #6B6455;
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #F3F1EA; --surface: #FFFFFF; --surface-2: #FBF9F3;
+    --line: #E3DFD3; --accent: #A9793B; --accent-soft: #7E5A2A;
+    --text: #201C13; --text-secondary: #6B6455;
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); height: 100%; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100%; background: var(--bg); color: var(--text);
+    font-family: 'Vazirmatn', sans-serif;
+    display: flex; justify-content: center;
+    padding: 32px 18px 48px;
+  }
+  .page { width: 100%; max-width: 440px; }
+  header { margin-bottom: 28px; }
+  .eyebrow { font-size: 13px; color: var(--accent); margin: 0 0 6px; font-weight: 500; }
+  h1 { font-size: 25px; font-weight: 700; margin: 0 0 8px; line-height: 1.4; }
+  .lede { font-size: 14.5px; color: var(--text-secondary); margin: 0; line-height: 1.7; max-width: 36ch; }
+
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 22px 20px; margin-bottom: 18px; }
+  .field { margin-bottom: 22px; }
+  .field:last-child { margin-bottom: 0; }
+  .field label { display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; }
+  .field .row { display: flex; align-items: baseline; gap: 8px; }
+  .field input[type="number"] {
+    flex: 1; background: transparent; border: none; border-bottom: 1.5px solid var(--line);
+    color: var(--text); font-family: 'Vazirmatn', sans-serif; font-size: 19px; font-weight: 500;
+    padding: 6px 2px; outline: none; transition: border-color 0.15s ease; width: 100%;
+    -moz-appearance: textfield;
+  }
+  .field input[type="number"]::-webkit-outer-spin-button,
+  .field input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .field input[type="number"]:focus { border-color: var(--accent); }
+  .unit { font-size: 13px; color: var(--text-secondary); white-space: nowrap; }
+
+  .slider-row { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+  input[type="range"] { flex: 1; -webkit-appearance: none; appearance: none; height: 3px; background: var(--line); border-radius: 2px; outline: none; }
+  input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--accent); cursor: pointer; border: 2px solid var(--surface); }
+  input[type="range"]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: var(--accent); cursor: pointer; border: 2px solid var(--surface); }
+  .slider-val { font-size: 13px; color: var(--accent); min-width: 3.5ch; text-align: left; }
+
+  .result-panel {
+    background: var(--surface-2); border: 1px solid var(--line); border-top: 2px solid var(--accent);
+    border-radius: 14px; padding: 26px 22px 22px; text-align: center; margin-bottom: 18px;
+  }
+  .result-label { font-size: 13.5px; color: var(--text-secondary); margin: 0 0 10px; }
+  .result-hero { font-size: 38px; font-weight: 700; color: var(--accent-soft); margin: 0; letter-spacing: -0.5px; line-height: 1.2; }
+  .result-hero .unit-lg { font-size: 17px; font-weight: 500; color: var(--text-secondary); margin-inline-start: 6px; }
+  .result-sub { font-size: 13px; color: var(--text-secondary); margin-top: 8px; }
+
+  .breakdown { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
+  .stat p { margin: 0; }
+  .stat .k { font-size: 12px; color: var(--text-secondary); margin-bottom: 5px; }
+  .stat .v { font-size: 15.5px; font-weight: 600; }
+
+  footer { margin-top: 22px; font-size: 12.5px; color: var(--text-secondary); line-height: 1.8; text-align: center; }
+  .err { font-size: 13px; color: var(--danger); text-align: center; margin-bottom: 14px; display: none; }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <p class="eyebrow">محاسبه‌گر فروش اقساطی</p>
+    <h1>اقساط با درصد پیش‌پرداخت دلخواه</h1>
+    <p class="lede">قیمت همکاری، سود نقدی، درصد پیش‌پرداخت، سود ماهانه و تعداد ماه رو خودت تنظیم کن — سود ماهانه به‌صورت ساده (Flat) روی باقیمانده بعد از پیش‌پرداخت محاسبه می‌شه.</p>
+  </header>
+
+  <div class="panel">
+    <div class="field">
+      <label for="cost">قیمت همکاری</label>
+      <div class="row">
+        <input type="number" id="cost" value="100000000" step="100000">
+        <span class="unit">تومان</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="cashPct">درصد سود نقدی</label>
+      <div class="slider-row">
+        <input type="range" id="cashPct" min="0" max="60" step="1" value="20">
+        <span class="slider-val" id="cashPctVal">۲۰٪</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="downPct">درصد پیش‌پرداخت</label>
+      <div class="slider-row">
+        <input type="range" id="downPct" min="0" max="90" step="1" value="20">
+        <span class="slider-val" id="downPctVal">۲۰٪</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="monthPct">درصد سود ساده ماهانه (روی باقیمانده)</label>
+      <div class="slider-row">
+        <input type="range" id="monthPct" min="0" max="15" step="0.5" value="7">
+        <span class="slider-val" id="monthPctVal">۷٪</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="months">تعداد ماه اقساط</label>
+      <div class="slider-row">
+        <input type="range" id="months" min="1" max="36" step="1" value="9">
+        <span class="slider-val" id="monthsVal">۹</span>
+      </div>
+    </div>
+  </div>
+
+  <p class="err" id="errBox">لطفاً قیمت همکاری را وارد کنید.</p>
+
+  <div class="result-panel">
+    <p class="result-label">مبلغ هر قسط ماهانه</p>
+    <p class="result-hero"><span id="instOut">-</span><span class="unit-lg">تومان</span></p>
+    <p class="result-sub" id="subOut"></p>
+  </div>
+
+  <div class="breakdown">
+    <div class="stat"><p class="k">قیمت نقدی</p><p class="v" id="cashOut">-</p></div>
+    <div class="stat"><p class="k">مبلغ پیش‌پرداخت</p><p class="v" id="downOut">-</p></div>
+    <div class="stat"><p class="k">باقیمانده بعد پیش‌پرداخت</p><p class="v" id="remOut">-</p></div>
+    <div class="stat"><p class="k">سود ساده کل</p><p class="v" id="interestOut">-</p></div>
+    <div class="stat"><p class="k">جمع اقساط</p><p class="v" id="instTotalOut">-</p></div>
+    <div class="stat"><p class="k">جمع کل دریافتی</p><p class="v" id="totalOut">-</p></div>
+  </div>
+
+  <footer>پیش‌پرداخت اینجا درصد دلخواهیه که خودت تعیین می‌کنی؛ لزوماً با مبلغ هر قسط برابر نیست.</footer>
+</div>
+
+<script>
+function fmt(n){ return Math.round(n).toLocaleString('fa-IR'); }
+function fmtPct(n){ return n.toLocaleString('fa-IR') + '٪'; }
+
+var costEl = document.getElementById('cost');
+var cashPctEl = document.getElementById('cashPct');
+var downPctEl = document.getElementById('downPct');
+var monthPctEl = document.getElementById('monthPct');
+var monthsEl = document.getElementById('months');
+var errBox = document.getElementById('errBox');
+
+function calc(){
+  document.getElementById('cashPctVal').textContent = fmtPct(parseFloat(cashPctEl.value));
+  document.getElementById('downPctVal').textContent = fmtPct(parseFloat(downPctEl.value));
+  document.getElementById('monthPctVal').textContent = fmtPct(parseFloat(monthPctEl.value));
+  document.getElementById('monthsVal').textContent = parseInt(monthsEl.value).toLocaleString('fa-IR');
+
+  var cost = parseFloat(costEl.value);
+  var cashPct = parseFloat(cashPctEl.value);
+  var downPct = parseFloat(downPctEl.value);
+  var monthPct = parseFloat(monthPctEl.value);
+  var n = parseInt(monthsEl.value);
+
+  if(!cost || cost <= 0 || isNaN(cashPct) || isNaN(downPct) || isNaN(monthPct) || !n || n <= 0){
+    errBox.style.display = 'block';
+    ['instOut','cashOut','downOut','remOut','interestOut','instTotalOut','totalOut'].forEach(function(id){
+      document.getElementById(id).textContent = '-';
+    });
+    document.getElementById('subOut').textContent = '';
+    return;
+  }
+  errBox.style.display = 'none';
+
+  var cashPrice = cost * (1 + cashPct/100);
+  var downPayment = cashPrice * (downPct/100);
+  var remaining = cashPrice - downPayment;
+  var r = monthPct/100;
+
+  // Flat (simple) interest on the remaining balance, spread evenly over n months.
+  var interest = remaining * r * n;
+  var installmentTotal = remaining + interest;
+  var perInstallment = installmentTotal / n;
+  var totalPaid = downPayment + installmentTotal;
+
+  document.getElementById('instOut').textContent = fmt(perInstallment);
+  document.getElementById('cashOut').textContent = fmt(cashPrice);
+  document.getElementById('downOut').textContent = fmt(downPayment);
+  document.getElementById('remOut').textContent = fmt(remaining);
+  document.getElementById('interestOut').textContent = fmt(interest);
+  document.getElementById('instTotalOut').textContent = fmt(installmentTotal);
+  document.getElementById('totalOut').textContent = fmt(totalPaid);
+  document.getElementById('subOut').textContent = n.toLocaleString('fa-IR') + ' قسط مساوی پس از پیش‌پرداخت';
+}
+
+[costEl, cashPctEl, downPctEl, monthPctEl, monthsEl].forEach(function(el){
+  el.addEventListener('input', calc);
+});
+calc();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  });
+}
+</script>
+</body>
+</html>
